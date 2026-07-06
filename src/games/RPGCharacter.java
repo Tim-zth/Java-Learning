@@ -73,7 +73,7 @@ public class RPGCharacter {
         System.out.printf("%-10s : %d\n", "Attack", attack);
         System.out.printf("%-10s : %d\n", "Defense", defense);
         System.out.printf("%-10s : %d G\n", "Gold", gold);
-        System.out.printf("%-10s : %b\n", "Alive", alive);
+        System.out.printf("%-10s : %s\n", "Status", alive ? "Alive" : "Dead");
 
         scanner.close();
     }
