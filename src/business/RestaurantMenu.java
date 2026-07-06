@@ -18,31 +18,40 @@ public class RestaurantMenu {
         int pizzaNum = 0;
         int pastaNum = 0;
 
-        int order;
+        int order = -1;
         double total;
         String receipt;
 
+        while(order != 0){
 
-        System.out.println("========== Menu ==========");
-        System.out.printf("1. %-10s    $%.2f\n", burger, burgerPrice);
-        System.out.printf("2. %-10s    $%.2f\n", pizza, pizzaPrice);
-        System.out.printf("3. %-10s    $%.2f\n", pasta, pastaPrice);
-        System.out.println("What would you like to order: ");
-        order = scanner.nextInt();
+            System.out.println("========== Menu ==========");
+            System.out.printf("1. %-10s    $%.2f\n", burger, burgerPrice);
+            System.out.printf("2. %-10s    $%.2f\n", pizza, pizzaPrice);
+            System.out.printf("3. %-10s    $%.2f\n", pasta, pastaPrice);
+            System.out.println("0. Check Out");
+            System.out.println("What would you like to order: ");
+            order = scanner.nextInt();
 
-        System.out.println("How many? ");
+            if(order == 0){
+                break;
+            }
 
-        switch(order){
-            case 1 -> burgerNum = scanner.nextInt();
-            case 2 -> pizzaNum = scanner.nextInt();
-            case 3 -> pastaNum = scanner.nextInt();
+            System.out.println("How many? ");
+
+            switch(order){
+                case 1 -> burgerNum += scanner.nextInt();
+                case 2 -> pizzaNum += scanner.nextInt();
+                case 3 -> pastaNum += scanner.nextInt();
+            }
+
+            total = burgerNum * burgerPrice + pizzaNum * pizzaPrice + pastaNum * pastaPrice;
+            System.out.printf("That's $%.2f in total.\n", total);
+
         }
-
         scanner.nextLine();
 
         total = burgerNum * burgerPrice + pizzaNum * pizzaPrice + pastaNum * pastaPrice;
 
-        System.out.printf("That's $%.2f in total.\n", total);
         System.out.println("Do you want receipt? [Y/N]");
         receipt = scanner.nextLine();
         if(receipt.equalsIgnoreCase("Y")){
