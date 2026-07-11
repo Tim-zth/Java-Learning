@@ -2,7 +2,7 @@ package games;
 
 public class Inventory {
 
-    String[] items;
+    Item[] items;
     int maxCapacity;
     double maxWeight;
 
@@ -15,7 +15,7 @@ public class Inventory {
     Inventory(){
         this.maxCapacity = 20;
         this.maxWeight = 50;
-        this.items = new String[maxCapacity];
+        this.items = new Item[maxCapacity];
 
         this.currentCapacity = 0;
         this.currentWeight = 0;
@@ -31,14 +31,14 @@ public class Inventory {
     void checkInventory(){
         for(int i = 0; i < this.currentCapacity; i++)
         {
-            System.out.print(this.items[i] + " ");
+            System.out.print(this.items[i].name + " ");
         }
         System.out.println();
     }
 
 
     //add item
-    boolean addItem(String newItem) {
+    boolean addItem(Item newItem) {
         if (isFull()) {
             System.out.println("Inventory is full");
             return false;
@@ -50,7 +50,7 @@ public class Inventory {
 
 
     //remove item
-    void removeItem(String itemToRemove){
+    void removeItem(Item itemToRemove){
         int index = findIndexOfItem(itemToRemove);
         if(index != -1){
 
@@ -67,9 +67,9 @@ public class Inventory {
     }
 
 
-    int findIndexOfItem(String item) {
+    int findIndexOfItem(Item itemToFind) {
         for (int i = 0; i < this.currentCapacity; i++) {
-            if (item.equals(this.items[i])) {
+            if (itemToFind == this.items[i]) {
                 return i;
             }
         }
