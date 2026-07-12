@@ -9,84 +9,34 @@ public class LoginSystem {
         Scanner scanner = new Scanner(System.in);
         Random random = new Random();
 
-        String username = "";
-        String password = "";
-        int choice;
-        boolean loggedIn = false;
+        System.out.println("========== Sign Up ==========");
+        User user = signUp(scanner);
 
-
-        showStartupMenu();
-
-        choice = scanner.nextInt();
-        scanner.nextLine();
-
-        if (choice == 1) {
-            System.out.println("========== Sign Up ==========");
-            username = getUsername(scanner);
-            password = signUp(scanner);
-
-            System.out.println("========== Sign In ==========");
-
-            loggedIn = signIn(scanner, random, username, password);
-        }
-        else if (choice == 2){
-            System.out.println("========== Sign In ==========");
-            loggedIn = signIn(scanner, random, username, password);
+        System.out.println("========== Sign In ==========");
+        if(!signIn(scanner, random, user)){
+            System.out.println("Failed to sign in");
         }
 
         scanner.close();
     }
 
 
-    //start up menu
-    static void showStartupMenu(){
-        System.out.println("========== Startup Menu ==========");
-        System.out.println("1. Sign Up");
-        System.out.println("2. Sign In");
+    // sign in --> sign up flow
+    static User signUp(Scanner scanner){
+
+        String email = getUserEmail(scanner);
+
+        String username = getUserUsername(scanner);
+
+        String password = getUserPassword(scanner);
+
+        return new User(username, password, email);
     }
 
 
-    // sign in/ sign up flow
-    static String signUp(Scanner scanner){
-
-        String password = "";
-
-        System.out.println("Create your password: ");
-        System.out.println("1. at least 8 characters");
-        System.out.println("2. contains number");
-        System.out.println("3. contains uppercase letter");
-        System.out.println("4. contains special character");
-
-        do {
-
-            String tempPassword = scanner.nextLine();
-            if(!checkLength(tempPassword)){
-                System.out.println("password has to be at least 8 characters");
-            }
-            if(!checkContainsNumber(tempPassword)){
-                System.out.println("password has to contain number");
-            }
-            if(!checkContainsUppercase(tempPassword)){
-                System.out.println("password has to contain uppercase letter");
-            }
-            if(!checkContainsSpecialCharacter(tempPassword)) {
-                System.out.println("password has to contain special character");
-            }
-
-            if(isValidPassword(tempPassword)){
-                password = tempPassword;
-            }
-            else{
-                System.out.println("Create your password: ");
-            }
-        }while(password.isEmpty());
-
-        return password;
-
-    }
-
-
-    static boolean signIn(Scanner scanner, Random random, String username, String password){
+    // Temporary implementation.
+    // Will be replaced with a user repository
+    static boolean signIn(Scanner scanner, Random random, User user){
 
         String usernameEntered;
         String passwordEntered;
@@ -101,7 +51,7 @@ public class LoginSystem {
 
             attempts--;
 
-            if (usernameEntered.equals(username) && passwordEntered.equals(password)) {
+            if (usernameEntered.equals(user.username) && passwordEntered.equals(user.password)) {
 
                 if (humanVerification(scanner, random)) {
                     System.out.println("Login successfully");
@@ -119,13 +69,98 @@ public class LoginSystem {
     }
 
 
+    // get username
+    static String getUserUsername(Scanner scanner){
+
+        while(true){
+
+            System.out.println("Please enter your username: ");
+
+            String username = scanner.nextLine();
+
+            if(isValidUsername(username)){
+                return username;
+            }
+
+            System.out.println("Please enter a valid username");
+        }
+    }
+
+
+    static boolean isValidUsername(String username){
+        return !username.contains(" ") && !username.isBlank();
+    }
+
+
+    static String getUserEmail(Scanner scanner){
+
+        while(true){
+
+            System.out.println("Enter your email: ");
+
+            String email = scanner.nextLine();
+
+            if(isValidEmail(email)){
+                return email;
+            }
+
+            System.out.println("Please enter a valid email address");
+        }
+    }
+
+
+    static boolean isValidEmail(String email){
+        return email.contains("@");
+    }
+
+
+    static String getUserPassword(Scanner scanner){
+
+        System.out.println("Create your password: ");
+        System.out.println("1. at least 8 characters");
+        System.out.println("2. contains number");
+        System.out.println("3. contains uppercase letter");
+        System.out.println("4. contains special character");
+
+        while(true){
+            String password = scanner.nextLine();
+
+            if(isValidPassword(password)){
+                return password;
+            }
+
+            System.out.println("Create your password: ");
+        }
+    }
+
+
     // check if new password is valid
     static boolean isValidPassword(String password) {
-        return checkLength(password)
-                && checkContainsNumber(password)
-                && checkContainsUppercase(password)
-                && checkContainsSpecialCharacter(password);
+
+        boolean hasValidLength = checkLength(password);
+        boolean hasNumber = checkContainsNumber(password);
+        boolean hasUppercase = checkContainsUppercase(password);
+        boolean hasSpecialCharacter = checkContainsSpecialCharacter(password);
+
+        if(!hasValidLength){
+            System.out.println("password has to be at least 8 characters");
+        }
+        if(!hasNumber){
+            System.out.println("password has to contain number");
+        }
+        if(!hasUppercase){
+            System.out.println("password has to contain uppercase letter");
+        }
+        if(!hasSpecialCharacter) {
+            System.out.println("password has to contain special character");
+        }
+
+        return hasValidLength
+                && hasNumber
+                && hasUppercase
+                && hasSpecialCharacter;
     }
+
 
     static boolean checkLength(String password){
         return password.length() >= 8;
@@ -180,16 +215,6 @@ public class LoginSystem {
         scanner.nextLine();
 
         return humanVerificationResponse == rand1 + rand2;
-    }
-
-
-    // get username
-    static String getUsername(Scanner scanner){
-        System.out.println("Please enter your email: ");
-        String email = scanner.nextLine();
-        String username = email.substring(0,email.indexOf("@"));
-        System.out.println("Your username is: " + username);
-        return username;
     }
 
 
