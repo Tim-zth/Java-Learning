@@ -21,7 +21,6 @@ public class LoginSystem {
     }
 
 
-    // sign in --> sign up flow
     static User signUp(Scanner scanner){
 
         String email = getUserEmail(scanner);
@@ -69,7 +68,12 @@ public class LoginSystem {
     }
 
 
-    // get username
+    /**
+     * Prompts the user to enter a username until a valid one is provided.
+     *
+     * @param scanner Scanner used to read user input.
+     * @return A valid username entered by the user.
+     */
     static String getUserUsername(Scanner scanner){
 
         while(true){
@@ -87,11 +91,29 @@ public class LoginSystem {
     }
 
 
+    /**
+     * Validates whether a username satisfies all required rules.
+     *
+     * <p><b>Username requirements:</b></p>
+     * <ul>
+     *   <li>Must not be empty.</li>
+     *   <li>Must not contain spaces.</li>
+     * </ul>
+     *
+     * @param username Username to validate.
+     * @return true if the username is valid.
+     */
     static boolean isValidUsername(String username){
         return !username.contains(" ") && !username.isBlank();
     }
 
 
+    /**
+     * Prompts the user to enter an email address until a valid one is provided.
+     *
+     * @param scanner Scanner used to read user input.
+     * @return A valid email address entered by the user.
+     */
     static String getUserEmail(Scanner scanner){
 
         while(true){
@@ -109,11 +131,28 @@ public class LoginSystem {
     }
 
 
+    /**
+     * Validates whether an email address satisfies all required rules.
+     *
+     * <p><b>Email requirements:</b></p>
+     * <ul>
+     *   <li>Must contain @ .</li>
+     * </ul>
+     *
+     * @param email Email address to validate.
+     * @return true if the email address is valid.
+     */
     static boolean isValidEmail(String email){
         return email.contains("@");
     }
 
 
+    /**
+     * Prompts the user to enter a password until a valid one is provided.
+     *
+     * @param scanner Scanner used to read user input.
+     * @return A valid password entered by the user.
+     */
     static String getUserPassword(Scanner scanner){
 
         System.out.println("Create your password: ");
@@ -134,7 +173,20 @@ public class LoginSystem {
     }
 
 
-    // check if new password is valid
+    /**
+     * Validates whether a password satisfies all required rules.
+     *
+     * <p><b>Password requirements:</b></p>
+     * <ul>
+     *   <li>Must contain at least 8 characters</li>
+     *   <li>Must contain number</li>
+     *   <li>Must contain an uppercase letter</li>
+     *   <li>Must contain a special character</li>
+     * </ul>
+     *
+     * @param password Password to validate.
+     * @return true if the password is valid.
+     */
     static boolean isValidPassword(String password) {
 
         boolean hasValidLength = checkLength(password);
