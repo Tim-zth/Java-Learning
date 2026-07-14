@@ -3,91 +3,142 @@ package business;
 import java.util.Scanner;
 
 public class RestaurantMenu {
+
     public static void main(String[] args){
+
         Scanner scanner = new Scanner(System.in);
 
-        int burgerNum = 0;
-        int pizzaNum = 0;
-        int pastaNum = 0;
 
-        int order = -1;
-        double total;
-        String receipt;
-
-
-        while(order != 0){
-
-            displayMenu();
-
-            System.out.println("What would you like to order: ");
-            order = scanner.nextInt();
-
-            if(order == 0){
-                break;
-            }
-
-            System.out.println("How many? ");
-
-            switch(order){
-                case 1 -> burgerNum += scanner.nextInt();
-                case 2 -> pizzaNum += scanner.nextInt();
-                case 3 -> pastaNum += scanner.nextInt();
-            }
-
-            total = calculateTotalPrice(burgerNum, pizzaNum, pastaNum);
-            System.out.printf("That's $%.2f in total.\n", total);
-
-        }
-        scanner.nextLine();
-
-        total = calculateTotalPrice(burgerNum, pizzaNum, pastaNum);
-
-        System.out.println("Do you want receipt? [Y/N]");
-        receipt = scanner.nextLine();
-        if(receipt.equalsIgnoreCase("Y")){
-            displayReceipt(burgerNum, pizzaNum, pastaNum, total);
-        }
+        Order order = takeOrder(scanner);
 
         scanner.close();
     }
 
-    static String burger = "burger";
-    static String pizza = "Pizza";
-    static String pasta = "Pasta";
 
-    static double burgerPrice = 12.5;
-    static double pizzaPrice = 18;
-    static double pastaPrice = 15;
+    static Order takeOrder(Scanner scanner){
 
+        Order order = new Order();
+        Menu menu = new Menu();
 
-    //this method displays the menu
-    static void displayMenu(){
+        boolean finishedOrdering = false;
 
-        System.out.println("========== Menu ==========");
-        System.out.printf("1. %-10s    $%.2f\n", burger, burgerPrice);
-        System.out.printf("2. %-10s    $%.2f\n", pizza, pizzaPrice);
-        System.out.printf("3. %-10s    $%.2f\n", pasta, pastaPrice);
-        System.out.println("0. Check Out");
+        while(!finishedOrdering){
+
+            System.out.println("""
+                
+                ===== Restaurant =====
+                1. Add item
+                2. View current order
+                3. Modify order
+                0. Checkout
+                """);
+
+            int option = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (option){
+                case 1 -> addItem(scanner, order, menu);
+                case 2 -> checkOrder(order);
+                case 3 -> editOrder(scanner, order, menu);
+                case 0 -> {
+                    finishedOrdering = true;
+                    checkOut(order);
+                }
+            }
+        }
+        return order;
     }
 
-    //this method calculates the total price
-    static double calculateTotalPrice(int burgerNum, int pizzaNum, int pastaNum){
-        return burgerNum * burgerPrice + pizzaNum * pizzaPrice + pastaNum * pastaPrice;
+
+    static void addItem(Scanner scanner, Order order, Menu menu){
+        menu.display();
+
+        System.out.print("What would you like to order: ");
+        String itemName = scanner.nextLine();
+
+        MenuItem menuItem = menu.searchItem(itemName);
+
+        if (menuItem == null) {
+            System.out.println("Item is not on the menu.");
+            return;
+        }
+
+        System.out.print("How many do you want: ");
+        int quantity = scanner.nextInt();
+        scanner.nextLine();
+
+        if (quantity <= 0) {
+            System.out.println("Quantity must be greater than zero.");
+            return;
+        }
+
+        order.addOrderItem(menuItem, quantity);
     }
 
-    //this method displays the receipt
-    static void displayReceipt(int burgerNum, int pizzaNum, int pastaNum, double total){
-        System.out.println("========== Receipt ==========");
-        if(burgerNum > 0){
-            System.out.printf("%s * %d    $%.2f\n", burger, burgerNum, burgerNum * burgerPrice);
+
+    static void checkOrder(Order order){
+        order.printReceipt();
+    }
+
+
+    static void editOrder(Scanner scanner, Order order, Menu menu){
+        boolean finishedEditing = false;
+
+        while(!finishedEditing){
+
+            System.out.println("""
+                
+                ===== Restaurant =====
+                1. Increase quantity
+                2. Decrease quantity
+                3. Remove item
+                0. Finish
+                """);
+
+            int option = scanner.nextInt();
+            scanner.nextLine();
+
+            switch(option){
+                case 1 -> {
+                    System.out.println("Choose an item: ");
+                    String itemName = scanner.nextLine();
+
+                    System.out.println("How many to Increase: ");
+                    int quantity = scanner.nextInt();
+                    scanner.nextLine();
+
+                    MenuItem menuItem = menu.searchItem(itemName);
+
+                    order.increaseQuantity(menuItem, quantity);
+                }
+                case 2 -> {
+                    System.out.println("Choose an item: ");
+                    String itemName = scanner.nextLine();
+
+                    System.out.println("How many to decrease: ");
+                    int quantity = scanner.nextInt();
+                    scanner.nextLine();
+
+                    MenuItem menuItem = menu.searchItem(itemName);
+
+                    order.decreaseQuantity(menuItem, quantity);
+                }
+                case 3 -> {
+                    System.out.println("Choose an item: ");
+                    String itemName = scanner.nextLine();
+
+                    MenuItem menuItem = menu.searchItem(itemName);
+
+                    order.removeOrderItem(menuItem);
+                }
+                case 0 -> finishedEditing = true;
+            }
         }
-        if(pizzaNum > 0){
-            System.out.printf("%s * %d    $%.2f\n", pizza, pizzaNum, pizzaNum * pizzaPrice);
-        }
-        if(pastaNum > 0){
-            System.out.printf("%s * %d    $%.2f\n", pasta, pastaNum, pastaNum * pastaPrice);
-        }
-        System.out.printf("Total :  $%.2f\n", total);
+    }
+
+
+    static void checkOut(Order order){
+        order.printReceipt();
     }
 
 }
