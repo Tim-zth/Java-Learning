@@ -8,151 +8,123 @@ public class LoginSystem {
 
         Scanner scanner = new Scanner(System.in);
         Random random = new Random();
+        UserList userList = new UserList();
+        boolean quit = false;
 
-        System.out.println("========== Sign Up ==========");
-        User user = signUp(scanner);
+        while(!quit){
+            System.out.println("1. Sign In");
+            System.out.println("2. Create Account");
+            System.out.println("0. Exit");
 
-        System.out.println("========== Sign In ==========");
-        if(!signIn(scanner, random, user)){
-            System.out.println("Failed to sign in");
+            int option = scanner.nextInt();
+            scanner.nextLine();
+
+            switch(option){
+                case 1 -> {
+                    signIn(scanner, random, userList);
+                }
+                case 2 -> {
+                    createAccount(scanner, userList);
+                }
+                case 0 -> {
+                    quit = true;
+                }
+                default -> {
+                    System.out.println("Invalid input");
+                }
+            }
         }
-
         scanner.close();
     }
 
 
-    static User signUp(Scanner scanner){
+    static void createAccount(Scanner scanner, UserList userList){
 
-        String email = getUserEmail(scanner);
-
-        String username = getUserUsername(scanner);
-
+        String email = getUserEmail(scanner, userList);
+        String username = getUserUsername(scanner, userList);
         String password = getUserPassword(scanner);
 
-        return new User(username, password, email);
+        if (userList.addUser(new User(username, password, email))) {
+            System.out.println("Account created successfully.");
+        } else {
+            System.out.println("Unable to create account.");
+        }
     }
 
 
-    // Temporary implementation.
-    // Will be replaced with a user repository
-    static boolean signIn(Scanner scanner, Random random, User user){
+    static void signIn(Scanner scanner, Random random, UserList userList){
 
         String usernameEntered;
         String passwordEntered;
-        int attempts = 3;
 
-        while(attempts > 0) {
-            System.out.println("Enter your username: ");
-            usernameEntered = scanner.nextLine();
+        System.out.println("Enter your username: ");
+        usernameEntered = scanner.nextLine();
+        User user = userList.getUser(usernameEntered);
 
-            System.out.println("Enter your password: ");
-            passwordEntered = scanner.nextLine();
+        System.out.println("Enter your password: ");
+        passwordEntered = scanner.nextLine();
 
-            attempts--;
-
-            if (usernameEntered.equals(user.username) && passwordEntered.equals(user.password)) {
-
-                if (humanVerification(scanner, random)) {
-                    System.out.println("Login successfully");
-                    return true;
-                } else {
-                    System.out.println("You are not human");
-                    break;
-                }
+        if(user == null || !passwordEntered.equals(user.getPassword())){
+            System.out.println("Wrong username or password");
+        }
+        else{
+            if (humanVerification(scanner, random)) {
+                System.out.println("Login successfully");
             } else {
-                System.out.println("Wrong username or password");
-                System.out.printf("You have %d attempts left\n", attempts);
+                System.out.println("You are not human");
             }
         }
-        return false;
     }
 
 
-    /**
-     * Prompts the user to enter a username until a valid one is provided.
-     *
-     * @param scanner Scanner used to read user input.
-     * @return A valid username entered by the user.
-     */
-    static String getUserUsername(Scanner scanner){
+    static String getUserUsername(Scanner scanner, UserList userList){
 
         while(true){
-
             System.out.println("Please enter your username: ");
-
             String username = scanner.nextLine();
 
-            if(isValidUsername(username)){
-                return username;
+            if(!isValidUsername(username)){
+                System.out.println("Please enter a valid username");
+                continue;
             }
-
-            System.out.println("Please enter a valid username");
+            else if(userList.isUsernameTaken(username)){
+                System.out.println("Username is taken");
+                continue;
+            }
+            return username;
         }
     }
 
 
-    /**
-     * Validates whether a username satisfies all required rules.
-     *
-     * <p><b>Username requirements:</b></p>
-     * <ul>
-     *   <li>Must not be empty.</li>
-     *   <li>Must not contain spaces.</li>
-     * </ul>
-     *
-     * @param username Username to validate.
-     * @return true if the username is valid.
-     */
     static boolean isValidUsername(String username){
         return !username.contains(" ") && !username.isBlank();
     }
 
 
-    /**
-     * Prompts the user to enter an email address until a valid one is provided.
-     *
-     * @param scanner Scanner used to read user input.
-     * @return A valid email address entered by the user.
-     */
-    static String getUserEmail(Scanner scanner){
+    static String getUserEmail(Scanner scanner, UserList userList){
 
         while(true){
-
             System.out.println("Enter your email: ");
-
             String email = scanner.nextLine();
 
-            if(isValidEmail(email)){
-                return email;
+            if(!isValidEmail(email)){
+                System.out.println("Please enter a valid email address");
+                continue;
             }
-
-            System.out.println("Please enter a valid email address");
+            else if(userList.isEmailTaken(email)) {
+                System.out.println("The email has been used by another account");
+                continue;
+            }
+            return email;
         }
     }
 
 
-    /**
-     * Validates whether an email address satisfies all required rules.
-     *
-     * <p><b>Email requirements:</b></p>
-     * <ul>
-     *   <li>Must contain @ .</li>
-     * </ul>
-     *
-     * @param email Email address to validate.
-     * @return true if the email address is valid.
-     */
     static boolean isValidEmail(String email){
         return email.contains("@");
     }
 
 
-    /**
-     * Prompts the user to enter a password until a valid one is provided.
-     *
-     * @param scanner Scanner used to read user input.
-     * @return A valid password entered by the user.
-     */
     static String getUserPassword(Scanner scanner){
 
         System.out.println("Create your password: ");
@@ -173,20 +145,6 @@ public class LoginSystem {
     }
 
 
-    /**
-     * Validates whether a password satisfies all required rules.
-     *
-     * <p><b>Password requirements:</b></p>
-     * <ul>
-     *   <li>Must contain at least 8 characters</li>
-     *   <li>Must contain number</li>
-     *   <li>Must contain an uppercase letter</li>
-     *   <li>Must contain a special character</li>
-     * </ul>
-     *
-     * @param password Password to validate.
-     * @return true if the password is valid.
-     */
     static boolean isValidPassword(String password) {
 
         boolean hasValidLength = checkLength(password);
@@ -218,12 +176,11 @@ public class LoginSystem {
         return password.length() >= 8;
     }
 
+
     static boolean checkContainsNumber(String password) {
         for (int i = 0; i < password.length(); i++) {
-            switch (password.charAt(i)) {
-                case '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' -> {
-                    return true;
-                }
+            if(Character.isDigit(password.charAt(i))){
+                return true;
             }
         }
         return false;
@@ -232,12 +189,8 @@ public class LoginSystem {
 
     static boolean checkContainsUppercase(String password){
         for(int i = 0; i < password.length(); i++){
-            switch(password.charAt(i)){
-                case 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J','K', 'L', 'M', 'N',
-                     'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' ->
-                {
-                    return true;
-                }
+            if(Character.isUpperCase(password.charAt(i))){
+                return true;
             }
         }
         return false;
