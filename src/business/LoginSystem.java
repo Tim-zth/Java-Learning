@@ -16,8 +16,14 @@ public class LoginSystem {
             System.out.println("2. Create Account");
             System.out.println("0. Exit");
 
-            int option = scanner.nextInt();
-            scanner.nextLine();
+            int option;
+            try{
+                option = Integer.parseInt(scanner.nextLine());
+            }
+            catch(NumberFormatException e){
+                System.out.println("Option must be a number.");
+                continue;
+            }
 
             switch(option){
                 case 1 -> {
@@ -87,7 +93,7 @@ public class LoginSystem {
                 System.out.println("Please enter a valid username");
                 continue;
             }
-            else if(userList.isUsernameTaken(username)){
+            if(userList.isUsernameTaken(username)){
                 System.out.println("Username is taken");
                 continue;
             }
@@ -111,7 +117,7 @@ public class LoginSystem {
                 System.out.println("Please enter a valid email address");
                 continue;
             }
-            else if(userList.isEmailTaken(email)) {
+            if(userList.isEmailTaken(email)) {
                 System.out.println("The email has been used by another account");
                 continue;
             }
