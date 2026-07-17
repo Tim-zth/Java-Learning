@@ -109,7 +109,7 @@ public class RestaurantMenu {
 
                     MenuItem menuItem = menu.searchItem(itemName);
 
-                    order.increaseQuantity(menuItem, quantity);
+                    order.updateQuantity(menuItem, quantity);
                 }
                 case 2 -> {
                     System.out.println("Choose an item: ");
@@ -121,7 +121,7 @@ public class RestaurantMenu {
 
                     MenuItem menuItem = menu.searchItem(itemName);
 
-                    order.decreaseQuantity(menuItem, quantity);
+                    order.updateQuantity(menuItem, quantity);
                 }
                 case 3 -> {
                     System.out.println("Choose an item: ");

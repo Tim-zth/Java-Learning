@@ -1,55 +1,29 @@
 package business;
 
+import java.util.ArrayList;
+
 public class Order {
 
-    OrderItem[] orderItems = new OrderItem[20];
-    int current = 0;
-
-    Order(){
-    }
-
+    private final ArrayList<OrderItem> orderItems = new ArrayList<>();
 
     public void addOrderItem(MenuItem menuItem, int quantity){
-        if (menuItem == null || quantity <= 0) {
+        if(menuItem == null || quantity <= 0) {
             return;
         }
-
         int index = searchItem(menuItem);
 
-        if (index >= 0) {
-            orderItems[index].quantity += quantity;
+        if(index >= 0) {
+            orderItems.get(index).updateQuantity(quantity);
             return;
         }
-
-        if (current >= orderItems.length) {
-            System.out.println("Order is full.");
-            return;
-        }
-
-        orderItems[current] = new OrderItem(menuItem, quantity);
-        current++;
-    }
-
-
-    public void increaseQuantity(MenuItem menuItem, int quantityToAdd){
-        int index = searchItem(menuItem);
-        if(index >= 0){
-            orderItems[index].quantity += quantityToAdd;
-        }
-        else{
-            System.out.println("Item does not exist");
-        }
+        orderItems.add(new OrderItem(menuItem, quantity));
     }
 
 
     public void removeOrderItem(MenuItem menuItem){
         int index = searchItem(menuItem);
         if(index >= 0){
-            for(int i = index; i < current - 1; i++){
-                orderItems[i] = orderItems[i + 1];
-            }
-            current--;
-            orderItems[current] = null;
+            orderItems.remove(index);
         }
         else{
             System.out.println("Item does not exist");
@@ -57,19 +31,18 @@ public class Order {
     }
 
 
-    public void decreaseQuantity(MenuItem menuItem, int quantityToDecrease){
+    public void updateQuantity(MenuItem menuItem, int quantity) {
         int index = searchItem(menuItem);
         if(index != -1){
-            if(orderItems[index].quantity - quantityToDecrease >= 0){
-                orderItems[index].quantity -= quantityToDecrease;
-            }
-            else{
+            boolean valid = orderItems.get(index).updateQuantity(quantity);
+            if(!valid){
                 System.out.println("Quantity cannot be negative");
             }
         }
         else{
             System.out.println("Item does not exist");
         }
+
     }
 
 
@@ -79,12 +52,13 @@ public class Order {
 
         System.out.println("========== Receipt ==========");
 
-        for(int i = 0; i < current; i++){
+        for(int i = 0; i < orderItems.size(); i++){
 
-            System.out.printf("%s * %d    $%.2f\n", orderItems[i].menuItem.name, orderItems[i].quantity,
-                    orderItems[i].calculateSubtotal());
+            System.out.printf("%s * %d    $%.2f\n", orderItems.get(i).getMenuItem().getName(),
+                    orderItems.get(i).getQuantity(),
+                    orderItems.get(i).calculateSubtotal());
 
-            total += orderItems[i].calculateSubtotal();
+            total += orderItems.get(i).calculateSubtotal();
         }
 
         System.out.printf("Total :  $%.2f\n", total);
@@ -93,9 +67,8 @@ public class Order {
 
     // return index of that item
     public int searchItem(MenuItem menuItem){
-
-        for(int i = 0; i < current; i++){
-            if(orderItems[i].menuItem == menuItem){
+        for(int i = 0; i < orderItems.size(); i++){
+            if(orderItems.get(i).getMenuItem() == menuItem){
                 return i;
             }
         }

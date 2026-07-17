@@ -2,10 +2,10 @@ package business;
 
 public class OrderItem {
 
-    MenuItem menuItem;
-    int quantity;
+    private MenuItem menuItem;
+    private int quantity;
 
-    OrderItem(MenuItem menuItem, int quantity){
+    public OrderItem(MenuItem menuItem, int quantity){
 
         this.menuItem = menuItem;
         this.quantity = quantity;
@@ -14,7 +14,23 @@ public class OrderItem {
 
 
     public double calculateSubtotal(){
-        return menuItem.price * quantity;
+        return menuItem.getPrice() * quantity;
+    }
+
+    public MenuItem getMenuItem(){
+        return this.menuItem;
+    }
+
+    public int getQuantity(){
+        return this.quantity;
+    }
+
+    public boolean updateQuantity(int quantity){
+        if(this.quantity + quantity < 1){
+            return false;
+        }
+        this.quantity += quantity;
+        return true;
     }
 
 
