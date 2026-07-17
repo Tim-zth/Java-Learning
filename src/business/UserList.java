@@ -1,62 +1,48 @@
 package business;
 
+import java.util.ArrayList;
+
 public class UserList {
 
-    private User[] users = new User[20];
-    private int current = 0;
-
-    public UserList(){
-    }
-
+    private final ArrayList<User> users = new ArrayList<>();
 
     public boolean addUser(User user){
         if(user == null){
             return false;
         }
-        if(isUsernameTaken(user.getUsername()) || isEmailTaken(user.getEmail())){
+        if(isUsernameTaken(user.getUsername())){
             return false;
         }
-        users[current] = user;
-        current++;
+        if(isEmailTaken(user.getEmail())){
+            return false;
+        }
+        users.add(user);
         return true;
     }
 
 
-    public void removeUser(User user){
-
-        int index = searchUser(user.getUsername());
-
-        if(index != -1){
-            for(int i = index; i < current - 1; i++){
-                users[i] = users[i + 1];
-            }
-            current--;
-            users[current] = null;
+    public boolean removeUser(String username){
+        User user = getUser(username);
+        if (user == null) {
+            return false;
         }
-        else{
-            System.out.println("User does not exist");
-        }
-    }
-
-
-    private int searchUser(String username){
-        for(int i = 0; i < current; i++){
-            if(users[i].getUsername().equals(username)){
-                return i;
-            }
-        }
-        return -1;
+        return users.remove(user);
     }
 
 
     public boolean isUsernameTaken(String username){
-        return searchUser(username) != -1;
+        for (User user : users) {
+            if (user.getUsername().equals(username)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
     public boolean isEmailTaken(String email){
-        for(int i = 0; i < current; i++){
-            if(users[i].getEmail().equals(email)){
+        for (User user : users) {
+            if (user.getEmail().equals(email)) {
                 return true;
             }
         }
@@ -64,11 +50,12 @@ public class UserList {
     }
 
     public User getUser(String username){
-        int index = searchUser(username);
-        if(index == -1){
-            return null;
+        for (User user : users) {
+            if (user.getUsername().equals(username)) {
+                return user;
+            }
         }
-        return users[index];
+        return null;
     }
 
 
