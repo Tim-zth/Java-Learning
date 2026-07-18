@@ -76,6 +76,7 @@ public class LoginSystem {
         else{
             if (humanVerification(scanner, random)) {
                 System.out.println("Login successfully");
+                accountPage(scanner, user, userList);
             } else {
                 System.out.println("You are not human");
             }
@@ -215,17 +216,120 @@ public class LoginSystem {
 
     // human verification for sign in
     static boolean humanVerification(Scanner scanner, Random random){
-        int humanVerificationResponse;
         int rand1;
         int rand2;
 
         rand1 = random.nextInt(1, 101);
         rand2 = random.nextInt(1, 101);
         System.out.printf("Human verification: %d + %d = ? ", rand1, rand2);
-        humanVerificationResponse = scanner.nextInt();
-        scanner.nextLine();
 
-        return humanVerificationResponse == rand1 + rand2;
+        try{
+            int response = Integer.parseInt(scanner.nextLine());
+            return response == rand1 + rand2;
+        }
+        catch(NumberFormatException e){
+            return false;
+        }
+    }
+
+
+    static void accountPage(Scanner scanner, User user, UserList userList){
+
+        while(true){
+            System.out.println("Welcome " + user.getUsername());
+            System.out.println("==========Account Page=========");
+            System.out.println("1. Profile");
+            System.out.println("2. Change username");
+            System.out.println("3. Change password");
+            System.out.println("4. Change email");
+            System.out.println("5. Logout");
+
+            int option;
+
+            try{
+                option = Integer.parseInt(scanner.nextLine());
+            }
+            catch(NumberFormatException e){
+                System.out.println("Option must be a number.");
+                continue;
+            }
+
+            switch (option){
+                case 1 -> {
+                    viewProfile(user);
+                }
+                case 2 -> {
+                    changeUsername(scanner, user, userList);
+                }
+                case 3 -> {
+                    changePassword(scanner, user, userList);
+                }
+                case 4 -> {
+                    changeEmail(scanner, user, userList);
+                }
+                case 5 -> {
+                    System.out.println("Logged out successfully.");
+                    return;
+                }
+                default -> {
+                    System.out.println("Invalid option");
+                }
+            }
+        }
+    }
+
+    static void changeUsername(Scanner scanner, User user, UserList userList){
+        //check if new username is valid
+        System.out.println("Enter new username: ");
+        String username = scanner.nextLine();
+
+        if(!isValidUsername(username)){
+            System.out.println("Invalid username");
+            return;
+        }
+        if(userList.isUsernameTaken(username)){
+            System.out.println("Username is taken");
+            return;
+        }
+        userList.changeUsername(user, username);
+    }
+
+    static void changePassword(Scanner scanner, User user, UserList userList){
+        System.out.println("Enter new password: ");
+        System.out.println("1. at least 8 characters");
+        System.out.println("2. contains number");
+        System.out.println("3. contains uppercase letter");
+        System.out.println("4. contains special character");
+
+        String password = scanner.nextLine();
+
+        if(isValidPassword(password)){
+            userList.changePassword(user, password);
+            return;
+        }
+        System.out.println("Invalid password");
+    }
+
+    static void changeEmail(Scanner scanner, User user, UserList userList){
+        System.out.println("Enter new email: ");
+
+        String email = scanner.nextLine();
+
+        if(!isValidEmail(email)){
+            System.out.println("Invalid email address");
+            return;
+        }
+        if(userList.isEmailTaken(email)) {
+            System.out.println("The email has been used by another account");
+            return;
+        }
+        userList.changeEmail(user, email);
+    }
+
+    static void viewProfile(User user){
+        System.out.println("Username: " + user.getUsername());
+        System.out.println("Password: " + user.getPassword());
+        System.out.println("Email address: " + user.getEmail());
     }
 
 
