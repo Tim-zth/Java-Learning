@@ -1,6 +1,7 @@
 package business;
 
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class UserList {
@@ -77,7 +78,8 @@ public class UserList {
                 writer.write(
                         user.getUsername() + "," +
                                 user.getPassword() + "," +
-                                user.getEmail() +
+                                user.getEmail() + "," +
+                                user.getCreatedAt() +
                                 System.lineSeparator()
                 );
             }
@@ -95,14 +97,15 @@ public class UserList {
             while((line = reader.readLine()) != null){
                 String[] userData = line.split(",");
 
-                if(userData.length != 3){
+                if(userData.length != 4){
                     continue;
                 }
                 String username = userData[0];
                 String password = userData[1];
                 String email = userData[2];
+                LocalDateTime createdAt = LocalDateTime.parse(userData[3]);
 
-                users.add(new User(username, password, email));
+                users.add(new User(username, password, email, createdAt));
             }
         }
         catch(FileNotFoundException e){

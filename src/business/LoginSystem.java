@@ -16,15 +16,12 @@ public class LoginSystem {
             System.out.println("2. Create Account");
             System.out.println("0. Exit");
 
-            int option;
-            try{
-                option = Integer.parseInt(scanner.nextLine());
-            }
-            catch(NumberFormatException e){
-                System.out.println("Option must be a number.");
+
+            Integer option = getUserOption(scanner);
+            if(option == null){
+                System.out.println("Option must be a number");
                 continue;
             }
-
             switch(option){
                 case 1 -> {
                     signIn(scanner, random, userList);
@@ -52,7 +49,8 @@ public class LoginSystem {
 
         if (userList.addUser(new User(username, password, email))) {
             System.out.println("Account created successfully.");
-        } else {
+        }
+        else {
             System.out.println("Unable to create account.");
         }
     }
@@ -135,10 +133,7 @@ public class LoginSystem {
     static String getUserPassword(Scanner scanner){
 
         System.out.println("Create your password: ");
-        System.out.println("1. at least 8 characters");
-        System.out.println("2. contains number");
-        System.out.println("3. contains uppercase letter");
-        System.out.println("4. contains special character");
+        printPasswordRequirements();
 
         while(true){
             String password = scanner.nextLine();
@@ -244,12 +239,8 @@ public class LoginSystem {
             System.out.println("4. Change email");
             System.out.println("5. Logout");
 
-            int option;
-
-            try{
-                option = Integer.parseInt(scanner.nextLine());
-            }
-            catch(NumberFormatException e){
+            Integer option = getUserOption(scanner);
+            if(option == null){
                 System.out.println("Option must be a number.");
                 continue;
             }
@@ -296,10 +287,7 @@ public class LoginSystem {
 
     static void changePassword(Scanner scanner, User user, UserList userList){
         System.out.println("Enter new password: ");
-        System.out.println("1. at least 8 characters");
-        System.out.println("2. contains number");
-        System.out.println("3. contains uppercase letter");
-        System.out.println("4. contains special character");
+        printPasswordRequirements();
 
         String password = scanner.nextLine();
 
@@ -328,9 +316,25 @@ public class LoginSystem {
 
     static void viewProfile(User user){
         System.out.println("Username: " + user.getUsername());
-        System.out.println("Password: " + user.getPassword());
         System.out.println("Email address: " + user.getEmail());
     }
+
+    static Integer getUserOption(Scanner scanner){
+        try{
+            return Integer.parseInt(scanner.nextLine());
+        }
+        catch(NumberFormatException e){
+            return null;
+        }
+    }
+
+    static void printPasswordRequirements(){
+        System.out.println("1. at least 8 characters");
+        System.out.println("2. contains number");
+        System.out.println("3. contains uppercase letter");
+        System.out.println("4. contains special character");
+    }
+
 
 
 }
