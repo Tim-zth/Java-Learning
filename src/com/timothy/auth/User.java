@@ -1,21 +1,24 @@
-package business;
+package com.timothy.auth;
 
 import java.time.LocalDateTime;
 
 public class User {
+    private int id;
     private String username;
     private String email;
     private String password;
-    private final LocalDateTime createdAt;
+    private LocalDateTime createdAt;
 
 
     //register new user
     public User(String username, String password, String email){
-        this(username, password, email, LocalDateTime.now());
+        this.username = username;
+        this.password = password;
+        this.email = email;
     }
 
-    //restore user from users file
-    public User(String username, String password, String email, LocalDateTime createdAt){
+    public User(int id, String username, String password, String email, LocalDateTime createdAt){
+        this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
@@ -47,6 +50,10 @@ public class User {
     }
 
     public LocalDateTime getCreatedAt(){
-        return createdAt;
+        return this.createdAt;
+    }
+
+    public int getId(){
+        return this.id;
     }
 }
