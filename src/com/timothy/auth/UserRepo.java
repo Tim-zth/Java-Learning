@@ -1,4 +1,6 @@
-package business;
+package com.timothy.auth;
+
+import com.timothy.database.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -141,7 +143,5 @@ public class UserRepo {
             }
         }
     }
-
-
 
 }
