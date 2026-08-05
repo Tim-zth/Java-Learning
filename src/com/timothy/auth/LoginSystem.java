@@ -1,5 +1,6 @@
-package business;
+package com.timothy.auth;
 
+import java.sql.SQLException;
 import java.util.Scanner;
 import java.util.Random;
 
@@ -8,81 +9,110 @@ public class LoginSystem {
 
         Scanner scanner = new Scanner(System.in);
         Random random = new Random();
-        UserList userList = new UserList();
-        boolean quit = false;
+        UserRepo userRepo = new UserRepo();
 
-        while(!quit){
-            System.out.println("1. Sign In");
-            System.out.println("2. Create Account");
-            System.out.println("0. Exit");
+        try{
+            userRepo.connect();
 
+            boolean quit = false;
 
-            Integer option = getUserOption(scanner);
-            if(option == null){
-                System.out.println("Option must be a number");
-                continue;
-            }
-            switch(option){
-                case 1 -> {
-                    signIn(scanner, random, userList);
+            while(!quit){
+
+                System.out.println("1. Sign In");
+                System.out.println("2. Create Account");
+                System.out.println("0. Exit");
+
+                Integer option = getUserOption(scanner);
+                if(option == null){
+                    System.out.println("Option must be a number");
+                    continue;
                 }
-                case 2 -> {
-                    createAccount(scanner, userList);
-                }
-                case 0 -> {
-                    quit = true;
-                }
-                default -> {
-                    System.out.println("Invalid input");
+                switch(option){
+                    case 1 -> {
+                        signIn(scanner, random, userRepo);
+                    }
+                    case 2 -> {
+                        createAccount(scanner, userRepo);
+                    }
+                    case 0 -> {
+                        quit = true;
+                    }
+                    default -> {
+                        System.out.println("Invalid input");
+                    }
                 }
             }
         }
-        scanner.close();
+        catch (SQLException e){
+            System.out.println("database connection fails");
+        }
+        finally
+        {
+            try {
+                userRepo.disconnect();
+            }
+            catch (SQLException e)
+            {
+                System.out.println("Could not disconnect from the database.");
+            }
+            scanner.close();
+        }
     }
 
 
-    static void createAccount(Scanner scanner, UserList userList){
+    static void createAccount(Scanner scanner, UserRepo userRepo){
 
-        String email = getUserEmail(scanner, userList);
-        String username = getUserUsername(scanner, userList);
-        String password = getUserPassword(scanner);
+        try{
+            String email = getUserEmail(scanner, userRepo);
+            String username = getUserUsername(scanner, userRepo);
+            String password = getUserPassword(scanner);
 
-        if (userList.addUser(new User(username, password, email))) {
-            System.out.println("Account created successfully.");
+            if (userRepo.addUser(new User(username, password, email))) {
+                System.out.println("Account created successfully.");
+            }
+            else {
+                System.out.println("Unable to create account.");
+            }
         }
-        else {
-            System.out.println("Unable to create account.");
+        catch (SQLException e){
+            System.out.println("something went wrong");
         }
     }
 
 
-    static void signIn(Scanner scanner, Random random, UserList userList){
+    static void signIn(Scanner scanner, Random random, UserRepo userRepo){
 
         String usernameEntered;
         String passwordEntered;
 
-        System.out.println("Enter your username: ");
-        usernameEntered = scanner.nextLine();
-        User user = userList.getUser(usernameEntered);
+        try{
+            System.out.println("Enter your username: ");
+            usernameEntered = scanner.nextLine();
+            User user = userRepo.searchUser(usernameEntered);
 
-        System.out.println("Enter your password: ");
-        passwordEntered = scanner.nextLine();
+            System.out.println("Enter your password: ");
+            passwordEntered = scanner.nextLine();
 
-        if(user == null || !passwordEntered.equals(user.getPassword())){
-            System.out.println("Wrong username or password");
-        }
-        else{
-            if (humanVerification(scanner, random)) {
-                System.out.println("Login successfully");
-                accountPage(scanner, user, userList);
-            } else {
-                System.out.println("You are not human");
+            if(user == null || !passwordEntered.equals(user.getPassword())){
+                System.out.println("Wrong username or password");
+            }
+            else{
+                if (humanVerification(scanner, random)) {
+                    System.out.println("Login successfully");
+                    accountPage(scanner, user, userRepo);
+                } else {
+                    System.out.println("You are not human");
+                }
             }
         }
+        catch (SQLException e){
+            System.out.println("something went wrong");
+        }
+
     }
 
 
-    static String getUserUsername(Scanner scanner, UserList userList){
+    static String getUserUsername(Scanner scanner, UserRepo userRepo) throws SQLException{
 
         while(true){
             System.out.println("Please enter your username: ");
@@ -92,7 +122,7 @@ public class LoginSystem {
                 System.out.println("Please enter a valid username");
                 continue;
             }
-            if(userList.isUsernameTaken(username)){
+            if(userRepo.isUsernameTaken(username)){
                 System.out.println("Username is taken");
                 continue;
             }
@@ -106,7 +136,7 @@ public class LoginSystem {
     }
 
 
-    static String getUserEmail(Scanner scanner, UserList userList){
+    static String getUserEmail(Scanner scanner, UserRepo userRepo) throws SQLException{
 
         while(true){
             System.out.println("Enter your email: ");
@@ -116,7 +146,7 @@ public class LoginSystem {
                 System.out.println("Please enter a valid email address");
                 continue;
             }
-            if(userList.isEmailTaken(email)) {
+            if(userRepo.isEmailTaken(email)) {
                 System.out.println("The email has been used by another account");
                 continue;
             }
@@ -228,7 +258,7 @@ public class LoginSystem {
     }
 
 
-    static void accountPage(Scanner scanner, User user, UserList userList){
+    static void accountPage(Scanner scanner, User user, UserRepo userRepo){
 
         while(true){
             System.out.println("Welcome " + user.getUsername());
@@ -250,13 +280,13 @@ public class LoginSystem {
                     viewProfile(user);
                 }
                 case 2 -> {
-                    changeUsername(scanner, user, userList);
+                    changeUsername(scanner, user, userRepo);
                 }
                 case 3 -> {
-                    changePassword(scanner, user, userList);
+                    changePassword(scanner, user, userRepo);
                 }
                 case 4 -> {
-                    changeEmail(scanner, user, userList);
+                    changeEmail(scanner, user, userRepo);
                 }
                 case 5 -> {
                     System.out.println("Logged out successfully.");
@@ -269,7 +299,7 @@ public class LoginSystem {
         }
     }
 
-    static void changeUsername(Scanner scanner, User user, UserList userList){
+    static void changeUsername(Scanner scanner, User user, UserRepo userRepo){
         //check if new username is valid
         System.out.println("Enter new username: ");
         String username = scanner.nextLine();
@@ -278,27 +308,41 @@ public class LoginSystem {
             System.out.println("Invalid username");
             return;
         }
-        if(userList.isUsernameTaken(username)){
-            System.out.println("Username is taken");
+        if(user.getUsername().equals(username)){
+            System.out.println("you are using the username");
             return;
         }
-        userList.changeUsername(user, username);
+        try{
+            if(userRepo.isUsernameTaken(username)){
+                System.out.println("Username is taken");
+                return;
+            }
+            userRepo.changeUsername(user, username);
+        }
+        catch (SQLException e){
+            System.out.println("something went wrong");
+        }
     }
 
-    static void changePassword(Scanner scanner, User user, UserList userList){
+    static void changePassword(Scanner scanner, User user, UserRepo userRepo){
         System.out.println("Enter new password: ");
         printPasswordRequirements();
 
         String password = scanner.nextLine();
 
-        if(isValidPassword(password)){
-            userList.changePassword(user, password);
-            return;
+        try{
+            if(isValidPassword(password)){
+                userRepo.changePassword(user, password);
+                return;
+            }
+            System.out.println("Invalid password");
         }
-        System.out.println("Invalid password");
+        catch (SQLException e){
+            System.out.println("something went wrong");
+        }
     }
 
-    static void changeEmail(Scanner scanner, User user, UserList userList){
+    static void changeEmail(Scanner scanner, User user, UserRepo userRepo){
         System.out.println("Enter new email: ");
 
         String email = scanner.nextLine();
@@ -307,11 +351,16 @@ public class LoginSystem {
             System.out.println("Invalid email address");
             return;
         }
-        if(userList.isEmailTaken(email)) {
-            System.out.println("The email has been used by another account");
-            return;
+        try{
+            if(userRepo.isEmailTaken(email)) {
+                System.out.println("The email has been used by another account");
+                return;
+            }
+            userRepo.changeEmail(user, email);
         }
-        userList.changeEmail(user, email);
+        catch (SQLException e){
+            System.out.println("something went wrong");
+        }
     }
 
     static void viewProfile(User user){
@@ -334,8 +383,5 @@ public class LoginSystem {
         System.out.println("3. contains uppercase letter");
         System.out.println("4. contains special character");
     }
-
-
-
 }
 
