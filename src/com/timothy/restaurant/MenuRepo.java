@@ -1,4 +1,6 @@
-package business;
+package com.timothy.restaurant;
+
+import com.timothy.database.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

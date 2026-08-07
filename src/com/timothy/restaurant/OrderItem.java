@@ -1,4 +1,4 @@
-package business;
+package com.timothy.restaurant;
 
 public class OrderItem {
 
